@@ -34,20 +34,26 @@ TABELAS = [
 ]
 
 
-entrada = "SELECT idCategoria, desCategoria FROM Categoria JOIN movimentacao WHERE numero > 0".lower()
-# print(entrada)
-
 def readCommand(entrada):
     print("\nCOMANDO: " + entrada)
 
-    tables = re.search('from (.*)', entrada).group(1).replace(" join", ",")
-    print("\n TABELAS IDENTIFICADAS : "+ str(tables.split(", ")))
+    try:
+        tables = re.search('from (.*)', entrada).group(1).replace(" join", ",")
+        print("\n TABELAS IDENTIFICADAS : "+ str(tables.split(", ")))
+    except:
+        return "Tabelas Não foram Indentificadas"
 
-    columns = re.search('select (.*) from', entrada).group(1)
-    print("\n COLUNAS IDENTIFICADAS : "+str(columns.split(", ")))
+    try:
+        columns = re.search('select (.*) from', entrada).group(1)
+        print("\n COLUNAS IDENTIFICADAS : "+str(columns.split(", ")))
+    except:
+        return "colunas não foram identificadas"
 
-    where_cond = re.search('from (.*)', entrada).group(1).replace(" join", ",")
-    print("\n TABELAS IDENTIFICADAS : "+ str(where_cond.split(", ")))
+    try:
+        where_cond = re.search('from (.*)', entrada).group(1).replace(" join", ",")
+        print("\n TABELAS IDENTIFICADAS : "+ str(where_cond.split(", ")))
+    except:
+        return "Condições não foram identificadas"
 
     tabelaExiste = False
     for tabela in TABELAS:
@@ -56,11 +62,12 @@ def readCommand(entrada):
             print("tabela identificada\n")
             for coluna in columns.split(","):
                 if coluna.strip() not in tabela["colunas"]:
-                    print(f"coluna '{coluna.strip()}' NAO ASLKDNSLAJKND em '{tabela['nome']}'")
+                    print(f"coluna '{coluna.strip()}' NAO EXISTE em '{tabela['nome']}'")
                 else:
                     print(f"coluna '{coluna.strip()}' EXISTE em '{tabela['nome']}'")
+    
     if not tabelaExiste:
-        print("Tabela Não EXISTE")
+        return "Tabela Não EXISTE"
 
     
     
@@ -69,12 +76,14 @@ def readCommand(entrada):
     #conditionals = re.search('where(.*)', entrada).group(1)
     #print("\n CONDIÇÕES IDENTIFICADAS : "+conditionals)
 
+    return saida_atual
+
 #saida_atual = "π" + columns + "(σ" + conditionals + " (" + tables1|X| tabela2 + "))"
 
-saida_ideal = "π COLUNA1, COLUNA2(σ SEXO=M(TABELA1))".lower()
+# saida_ideal = "π COLUNA1, COLUNA2(σ SEXO=M(TABELA1))".lower()
 
 
-readCommand(entrada)
+# readCommand(entrada)
 
 
 # projecao π -> SELECT

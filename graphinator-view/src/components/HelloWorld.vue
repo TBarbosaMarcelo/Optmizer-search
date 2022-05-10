@@ -19,7 +19,7 @@
         <div v-if="isInit">
         <v-divider></v-divider>
           <div class="row ma-5">
-            <div class="col">TESTE1</div>
+            <div class="col">{{ optimized }}</div>
             
             <div class="col d-flex justify-end">
               <v-img contain max-height="400" max-width="400" :src="src"></v-img>
@@ -51,11 +51,11 @@
             <v-card-title>Qual sua query?</v-card-title>
             <v-divider></v-divider>
             <v-card-text>
-              <v-text-field placeholder="DIGITA AI!"></v-text-field>
+              <v-textarea v-model="query" placeholder="DIGITA AI!"></v-textarea >
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="#aed581" class="mb-2">Otimizar!</v-btn>
+              <v-btn color="#aed581" class="mb-2" @click="optimizeQuery">Otimizar!</v-btn>
             </v-card-actions>
           </v-card>
           
@@ -73,122 +73,43 @@ export default {
 
   data() {
     return {
-      isInit: true,
+      isInit: false,
+      dialog: false,
 
       notFound: false,
       error: false,
 
       query: "",
+      optimized: "",
       src: "404.png"
     };
   },
-  mounted() {
-    fetch("http://localhost:3150/hash/initqm")
-      .then((response) => {
-        return response.json();
-      })
-      .then((json) => {
-        console.log(json)
-        this.isInit = json.init;
-      });
-  },
+  // mounted() {
+    
+  // },
   methods: {
-    loadFile() {
-      this.fileLoading = true
-
-      if (this.textFile != null) {
-        var reader = new FileReader();
-
-        reader.onload = () => {
-          this.text = reader.result;
-          this.fileLoading = false;
-        };
-        reader.readAsText(this.textFile);
-      } else {
-        this.fileLoading = false; 
-      }
-    },
-    async initHash() {
-      console.log(this.t_bucket, this.t_pag)
-      console.log(typeof this.t_bucket, typeof this.t_pag)
-
-      await fetch("http://localhost:3150/hash", {
+    
+    optimizeQuery() {
+      const misc = {
         method: "POST",
         headers: {
-          Accept: "application/json",
+          'Accept': 'application/json',
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          text: this.text,
-          t_bucket: parseInt(this.t_bucket),
-          t_pag: parseInt(this.t_pag),
-        }),
-      });
+        body: JSON.stringify({"sql": this.query})
+      }
 
-      fetch("http://localhost:3150/hash/initqm")
+      fetch("http://localhost:6789/optimize", misc)
       .then((response) => {
         return response.json();
       })
       .then((json) => {
         console.log(json)
-        this.isInit = json.init;
+        this.optimized = json.alg
+
+        this.isInit = true
+        this.dialog = false
       });
-    },
-
-    async pesquisarHash() {
-      this.isResponseAvailable = false;
-
-      await fetch(`http://localhost:3150/hash/search/${this.searchWord}`)
-      .then(response => {
-        if (response.status == 404){
-          this.notFound = true;
-        } else if (response.status != 200) {
-          this.error = true;
-        } else {
-          this.isResponseAvailable = true;
-        }
-
-        return response.json();
-      })
-      .then(json => {
-        if (typeof json != undefined) {
-          var data = json.data
-          console.log(data)
-
-          this.pag = data.pag
-          this.coll = data.colission
-          this.overflow = data.overflow
-
-          // switch (data.colision) {
-          //   case true:
-          //     this.coll = "SIM"
-          //     break;
-          //   case false:
-          //     this.coll = "NÃO"
-          //     break;
-          // }
-
-          this.access = data.access
-        }
-      })
-    },
-
-    async removeHash() {
-      await fetch("http://localhost:3150/hash", {
-        method: "DELETE"
-      });
-
-      await fetch("http://localhost:3150/hash/initqm")
-      .then((response) => {
-        return response.json();
-      })
-      .then((json) => {
-        console.log(json)
-        this.isInit = json.init;
-      });
-
-      this.searchWord = ""
-      this.isResponseAvailable = false
     },
 
     hide_notFound() {

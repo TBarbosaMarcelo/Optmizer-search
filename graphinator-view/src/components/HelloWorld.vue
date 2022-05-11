@@ -19,7 +19,7 @@
         <div v-if="isInit">
         <v-divider></v-divider>
           <div class="row ma-5">
-            <div class="col">{{ optimized }}</div>
+            <div class="col"><h2>{{ optimized }}</h2></div>
             
             <div class="col d-flex justify-end">
               <v-img contain max-height="400" max-width="400" :src="src"></v-img>

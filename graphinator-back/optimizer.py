@@ -1,37 +1,37 @@
 import re
 
-TABELAS = [
-    {
+TABELAS = {
+    "usuario": {
         "nome": "usuario",
         "colunas": ["idusuario", "nome", "logradouro", "numero", "bairro", "cep", "uf", "datanascimento"],
         "relac": []
     },
-    {
+    "contas": {
         "nome": "contas",
         "colunas": ["idconta", "descricao", "tipoconta_idtipoconta", "usuario_idusuario", "saldoinicial"],
         "relac": []
     },
-    {
+    "tipoconta": {
         "nome": "tipoconta",
         "colunas": ["idtipoconta", "descricao"],
         "relac": []
     },
-    {
+    "movimentacao": {
         "nome": "movimentacao",
         "colunas": ["idmovimentacao", "datamovimentacao", "descricao", "tipomovimento_idtipomovimento", "categoria_idcategoria", "contas_idconta", "valor"],
         "relac": []
     },
-    {
+    "tipomovimento": {
         "nome": "tipomovimento",
         "colunas": ["idtipomovimento", "descmovimentacao"],
         "relac": []
     },
-    {
+    "categoria": {
         "nome": "categoria",
         "colunas": ["idcategoria", "descategoria"],
         "relac": []
     }
-]
+}
 
 
 # entrada = "SELECT idCategoria, desCategoria FROM Categoria JOIN movimentacao WHERE numero > 0 join alpha where bravo".lower()
@@ -42,13 +42,13 @@ def readCommand(entrada):
     entrada = entrada.replace(";", "")
 
     try:
-        tables_main = re.search('from (.*) join', entrada).group(1)
+        tables_main = re.search('from (\w*) join', entrada).group(1)
         print("\n TABELA MAIN IDENTIFICADAS : "+ str(tables_main.split(", ")))
     except:
         return "Tabela N Encontrada"
 
     try:
-        tables_join = re.search('join (.*) where', entrada).group(1)
+        tables_join = re.search('join (.*) where', entrada).group(1).replace(" where", "")
         print("\n TABELA JOIN IDENTIFICADAS : "+ str(tables_join.split(", ")))
     except:
         return "Join N Encontrados"
@@ -65,25 +65,20 @@ def readCommand(entrada):
     except:
         return "Condições Não Encontradas"
 
-    tabelaExiste = False
-    for tabela in TABELAS:
-        if tabela["nome"].lower() in tables_main.split(", "):
-            tabelaExiste = True
-            print("tabela identificada\n")
-            for coluna in columns.split(","):
-                if coluna.strip() not in tabela["colunas"]:
-                    print(f"coluna '{coluna.strip()}' NAO ASLKDNSLAJKND em '{tabela['nome']}'")
-                else:
-                    print(f"coluna '{coluna.strip()}' EXISTE em '{tabela['nome']}'")
-    if not tabelaExiste:
-        print("Tabela Não EXISTE")
+    sepTabelas = {}
 
-    
+    for tabela in tables_main.split(","):
+        sepTabelas[tabela] = []
+
+    for tabela in tables_main.split(","):
+        for coluna in columns.split(","):
+            if coluna.strip() in TABELAS[tabela]["colunas"]:
+                sepTabelas[tabela].append(coluna.strip())
+
+    print(sepTabelas)
     
     saida_atual = "π " + columns + "(σ " + where_cond +" (" + tables_main+ "|X|"+ tables_join + "))"
     print("\nSAIDA: " + saida_atual)
-    #conditionals = re.search('where(.*)', entrada).group(1)
-    #print("\n CONDIÇÕES IDENTIFICADAS : "+conditionals)
 
     return saida_atual
 

@@ -11,6 +11,6 @@ def get_index():
 def get_optimized_sql():
     req = request.json
 
-    optimized = readCommand(req['sql'].lower())
+    optimized, order = readCommand(req['sql'].lower())
 
-    return make_response({"alg": optimized}, 200)
+    return make_response({"alg": optimized, "exec": order}, 200)

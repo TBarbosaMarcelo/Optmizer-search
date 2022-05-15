@@ -19,7 +19,8 @@
         <div v-if="isInit">
         <v-divider></v-divider>
           <div class="row ma-5">
-            <div class="col"><h2>{{ optimized }}</h2></div>
+            <div class="col"><h4>{{ optimized }}</h4></div>
+            <div class="col"><h4 v-for="e in exec" :key="e">{{ e }}</h4></div>
             
             <div class="col d-flex justify-end">
               <v-img contain max-height="400" max-width="400" :src="src"></v-img>
@@ -81,6 +82,7 @@ export default {
 
       query: "",
       optimized: "",
+      exec: "Sequência Indisponível",
       src: "404.png"
     };
   },
@@ -106,6 +108,7 @@ export default {
       .then((json) => {
         console.log(json)
         this.optimized = json.alg
+        this.exec = json.exec.split("\n")
 
         this.isInit = true
         this.dialog = false
